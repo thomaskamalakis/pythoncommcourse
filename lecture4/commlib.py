@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 
 # function to create the square pulse
 def square(t , T):    
-    f = np.logical_and( t < T / 2.0 , t >= -T/2.0 )
+    f = np.logical_and( t <= T / 2.0 , t >= -T/2.0 )
     return f.astype('float')
 
 # create time axis
-def time_axis(Tmax, N):   
+def time_axis(Tmin, Tmax, N):   
     n = np.arange(-N / 2.0, N / 2.0, 1)
-    Dt = 2*Tmax / N
+    Dt = (Tmax - Tmin) / N
     return n * Dt
 
 # create frequency axis
@@ -58,83 +58,19 @@ def cos_signal(A, f0, t, phi = 0.0 ):
     return A * np.cos ( 2.0 * np.pi * f0 * t + phi )
 
 # plot signal
-def plot_signal(t, x, plot_type = 'o', close_all = False,
-                      xlabel = 't', ylabel = 'x(t)', figure_no = None,
-                      xlim = None, ylim = None, show_grid = False):
-    
-    if close_all:
-        plt.close('all')
-        
+def plot_signal(t, x, xlabel = 't', ylabel = 'x(t)', figure_no = None):
     if figure_no is None:
         plt.figure()
     else:
         plt.figure(figure_no)
     
-    plt.plot( t, x, plot_type )
+    plt.plot( t, x )
     plt.xlabel( xlabel )
-    plt.ylabel( ylabel ) 
-    
-    if xlim is not None:
-        plt.xlim(xlim)
-    
-    if ylim is not None:
-        plt.ylim(ylim)
-    
-    if show_grid:
-        plt.grid()
-    
+    plt.ylabel( ylabel )  
+
 # power spectral density    
 def power_density(t, x):
     T = np.max(t) - np.min(t)
     return 1.0 / T * np.abs( spectrum(t,x) ) ** 2.0
 
-def default_pulse(t, TS):
-    return square(t - TS/2.0, TS)
-    
-# pulse amplitude modulation waveform : slow version    
-def pam_waveform1(ak, TS, p_callable = default_pulse, 
-                 samples = 10, tinitial = 0, tguard = 0.0):
-    
-    Dt = TS / samples                                # sampling period    
-    Nguard = np.round(tguard / Dt)                   # guard points                         
-    Ntot = 2 * Nguard + samples * ak.size            # total number of points   
-    
-    x = np.zeros( Ntot.astype(int) )
-    t = np.arange( tinitial, tinitial + Ntot * Dt, Dt )
-        
-    for k, a in enumerate(ak):        
-        x += a * p_callable( t - k * TS, TS )
-        
-    return t, x
-
-# pulse amplitude modulation : fast version
-def pam_waveform2(ak, TS,  
-                 samples = 10, tinitial = 0, tguard = 0.0):
-    
-    Dt = TS / samples                                # sampling period    
-    Nguard = np.round(tguard / Dt)                   # guard points                         
-    Ntot = 2 * Nguard + samples * ak.size            # total number of points   
-    
-    x = np.zeros( Ntot.astype(int) )
-    t = np.arange( tinitial, tinitial + Ntot * Dt, Dt )
-
-    i = np.floor( (t - tinitial) / TS).astype(int)
-    j = np.where( np.logical_and(i >= 0, i < ak.size ) )
-
-    x[j] = ak[ i[j] ]
-    return t, x
-
-# windowed version of a signal
-def window(t, x, ta, tb):
-    
-    j = np.where( np.logical_and(t >= ta, t <= tb ) )
-    y = np.zeros( x.size )
-    y[j] = x[j]
-    return y
-    
-        
-
-    
-    
-    
-    
+# uniform samples
