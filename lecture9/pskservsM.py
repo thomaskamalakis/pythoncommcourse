@@ -1,10 +1,10 @@
-from commlib import qam_constellation
+from commlib import psk_constellation
 import matplotlib.pyplot as plt
 import numpy as np
 
 SNRbdBs = np.arange(0.5, 25, 0.5)
 n = np.arange(1,7,1)
-Ms = np.array([4, 16, 64, 256])
+Ms = np.array([2, 4, 8, 16, 32])
 Ms = Ms.astype(int)
 
 Pest = np.zeros( [SNRbdBs.size, Ms.size] )
@@ -14,7 +14,7 @@ threshold = 1e-4
 
 for i, SNRbdB in enumerate(SNRbdBs):
     for j, M in enumerate(Ms):
-        c = qam_constellation(M = M, SNRbdB = SNRbdB)
+        c = psk_constellation(M = M, SNRbdB = SNRbdB)
         Pest[i,j] = c.ser()
         Pebt[i,j] = c.ber()
         print('M = %d, SNRbdB = %6.2f Pe = %e' % (M,SNRbdB, Pest[i,j]))
